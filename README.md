@@ -8,7 +8,7 @@ Python was used as the main language for this project. So, in order to run it, y
 ## Setup
 
 1. Create a folder where you want to store the files that will be cloned from github.
-2. Inside the folder, clone the github repository from <URL>.
+2. Inside the folder, clone the github repository from https://github.com/erdinand/apitrips.git.
 3. Create a Python virtual environment to install the packages without affecting your main Python installation.
 4. Activate the virtual environment that was created.
 5. You will notice that prompt will change, showing that now you're in the virtual environment.
@@ -22,9 +22,9 @@ mkdir ~/myfolder
 
 cd ~/myfolder
 
-git clone https://github.com/<myuser>/<myuser>.git
+git clone https://github.com/erdinand/apitrips.git
 
-cd PROJNAME
+cd apitrips
 
 python3 -m venv .venvprojapi
 
@@ -62,7 +62,7 @@ You can use tools like Postman, Curl or a create a custom script able to send GE
      - ![Example using Postman to call /weekly-trips-average/by-region](images/postman-03-avg-by-region.png?raw=true "Example using Postman to call /weekly-trips-average/by-region")
 
 4. **/weekly-trips-average/by-bounding-box**
-     - Call this endpoint to get the weekly average number of trips according a bounding box. You can only use POST to make the request and it's necessary to send a JSON coordinates of the bounding box that you want to consider. Example:
+     - Call this endpoint to get the weekly average number of trips according a bounding box. You can only use POST to make the request and it's necessary to send a JSON coordinates of the bounding box that you want to consider. Example (coordinates can be separated by comma or space):
         -   {
                 "north-east": "45.1212, 7.5193",
                 "south-east": "45.0390, 7.5193",
@@ -78,4 +78,3 @@ You can use tools like Postman, Curl or a create a custom script able to send GE
 ## Observations 
 
  - questions.sql contains the queries that provide the answers to the questions proposed by the challenge.
- 
