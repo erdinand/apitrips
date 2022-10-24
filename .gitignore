@@ -1,0 +1,5 @@
+.DS_store
+source/trips_100M.csv
+database/*.db
+__pycache__
+.venvjobsity

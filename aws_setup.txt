@@ -1,0 +1,11 @@
+If I could AWS Cloud to host this solution, I would use the following services:
+
+ - AWS API Gateway + AWS Lambda to host the REST API (which would represent the api.py file)
+
+ - AWS Glue to create a job that would do the ingestion of the CSV data, including the transformations (which 
+ would represent database_handler.py file). Here the solution would be more scalable, because I would be able to use 
+ PySpark and its distributed architecture. It would be possible to use AWS EMR as well for this task.
+
+ - In terms of database, AWS Redshift or AWS Aurora could be used as the database, depending on the budget of the project.
+ I'm not considering S3 here because one of the requirements is to use a SQL database. Othewise, S3 + Athena would be a 
+ good option.
