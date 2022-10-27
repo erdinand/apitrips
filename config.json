@@ -1,0 +1,10 @@
+{
+    "csv_filename": "source/trips.csv",
+    "db_user": "postgres",
+    "db_password": "postgres",
+    "db_host": "localhost",
+    "db_port": 5432,
+    "db_database": "postgres",
+    "db_driver": "org.postgresql.Driver",
+    "db_driver_path": "drivers/postgresql-42.5.0.jar"
+}

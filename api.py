@@ -2,12 +2,14 @@ from flask import Flask, request, jsonify
 from database_handler import DatabaseHandler
 from flask_sock import Sock
 import time
+import json
 
 
 app = Flask(__name__)
 sock = Sock(app)
-db = DatabaseHandler('trips')
-
+with open("config.json", "r") as f:
+    config = json.load(f)
+db = DatabaseHandler('trips', config)
 
 @app.route('/load', methods=["GET", "POST"])
 def load():
@@ -20,8 +22,8 @@ def load():
     just return a confirmation about the beginning of the process and the client would be
     able to just receive notifications about the loading status. 
     """
-    global db
-    db = DatabaseHandler('trips', 'trips.csv')
+    global db, config
+    db = DatabaseHandler('trips', config)
     db.start()
     status = "Loading process has been started! Subscribe to /load-status and follow the loading status."
     return jsonify({"status": status})
@@ -55,7 +57,7 @@ def trips_average_by_region():
     one endpoint handling more complex parameters to realize which type was requested.
     """
     params = request.json
-    db = DatabaseHandler('trips')
+    db = DatabaseHandler('trips', config)
     result = db.get_weekly_avg_qt_trips_by_region(params["region"])
     return jsonify({"result": result})
 
@@ -70,7 +72,7 @@ def trips_average_by_bounding_box():
     one endpoint handling more complex parameters to realize which type was requested.
     """
     params = request.json
-    db = DatabaseHandler('trips')
+    db = DatabaseHandler('trips', config)
     result = db.get_weekly_avg_qt_trips_by_bounding_box(params)
     return jsonify({"result": result})
 

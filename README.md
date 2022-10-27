@@ -2,10 +2,31 @@
 
 This project was built as part of a challenge to process a dataset containing data about trips.
 
-Python was used as the main language for this project. So, in order to run it, you will need Python 3.10+ installed in your machine.
+Python was used as the main language for this project. So, in order to run it, you will need Python 3.10+ installed on your machine. You will need also the latest version of Docker, which is used to create an instance of Postgres database.
+
+## Setup Database
+
+1. Make sure you have Docker installed on your machine.
+2. Pull the postgres image from DockerHub.
+3. Create a container based on the postgres image, setting the parameters that will configure user, password, database and which port will be mapped between the container and your local machine. API is configured to use default parameters as stated below. If you want to use different configuration, please change the config.json that is located in the root of the project's folder.
+
+Following you can see an example of how to setup the postgres docker container.
+
+```bash
+docker pull postgres
+
+docker run  -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -d -p 5432:5432 postgres
+
+# Use docker ps to confirm that the container is running
+docker ps
+```
+
+## Setup Apache Spark
+
+In order to execute this project, you will also need Apache Spark and Java JDK installed on the machine that will execute the Python code. This project was tested with Apache Spark 3.3+ and Java JDK version 8, so it's recommend to use these versions when testing this project.
 
 
-## Setup
+## Setup Application
 
 1. Create a folder where you want to store the files that will be cloned from github.
 2. Inside the folder, clone the github repository from https://github.com/erdinand/apitrips.git.
@@ -78,3 +99,5 @@ You can use tools like Postman, Curl or a create a custom script able to send GE
 ## Observations 
 
  - questions.sql contains the queries that provide the answers to the questions proposed by the challenge.
+ - aws_setup.txt contains some comments regarding how I would set up this application using AWS cloud.
+ - proof_of_scalability_01.png and proof_of_scalability_02.png (inside "images/" folder) represent screenshots with the execution of this application using a dataset of 100 millions rows. This dataset was generated copying the original content of trips.csv n times until reach 100M rows.
