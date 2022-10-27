@@ -1,15 +1,15 @@
 import pandas as pd
 import datetime
 import numpy as np
-from sklearn.cluster import DBSCAN
+#from sklearn.cluster import DBSCAN
 from threading import Thread
 import pg8000.native
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import (
     udf, col, lit, unix_timestamp, from_unixtime, date_format, 
-    concat, pandas_udf, PandasUDFType, regexp_extract
+    concat, regexp_extract
 )
-from pyspark.sql.types import FloatType, StringType, StructType, IntegerType, StructField
+from pyspark.sql.types import FloatType, StringType
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.clustering import KMeans
 
@@ -22,8 +22,8 @@ class DatabaseHandler(Thread):
     This also allows the server to update the loading status asynchronously, which
     is used in the web socket connection to update the client.
 
-    This class also has functions to make transform, group and store the data. All
-    the connections and database changes using SQLite are made here.
+    This class also has functions to transform, group and store the data. All
+    the connections and database changes using PostgreSQL are made here.
 
     Finally, the functions related to calculate the weekly average number of trips
     by region or bounding box are present in this class, but they are not expected
@@ -180,54 +180,17 @@ class DatabaseHandler(Thread):
         """
         return datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S").strftime("%Y-%V")
 
-    output_schema = StructType(
-                    [
-                        StructField('region', StringType(), True), 
-                        StructField('datasource', StringType(), True), 
-                        StructField('orig_lat', FloatType(), True), 
-                        StructField('orig_lon', FloatType(), True), 
-                        StructField('dest_lat', FloatType(), True), 
-                        StructField('dest_lon', FloatType(), True), 
-                        StructField('date', StringType(), True), 
-                        StructField('time', StringType(), True), 
-                        StructField('time_day', StringType(), True), 
-                        StructField('week', StringType(), True), 
-                        StructField('orig_cluster', IntegerType(), False), 
-                        StructField('dest_cluster', IntegerType(), False) 
-                    ]
-                )
-    @staticmethod
-    @pandas_udf(output_schema, PandasUDFType.GROUPED_MAP)
-    def _group_coord(groupedData):
-        """
-        The approach used here was based mainly in the approach described in 
-        https://geoffboeing.com/2014/08/clustering-to-reduce-spatial-data-set-size/ .
-        Using DBSCAN seems the better way to find clusters based on lat/lon coordinates.
-        Making some tests using the provided dataset, I found out that the minimum distance
-        between the points to find at least one group when considering time of day was 
-        1.6 kilometers. This is why I chose this parameter, but it could be increased/decreased
-        according to the business needs. Transformations to radians, algorithm and metric params
-        were kept as they seem the best for finding similar points.
-        The clusters found here will be used to reach the requirement "Trips with similar origin, 
-        destination, and time of day should be grouped together".
-        """
-        kms_per_radian = 6371.0088
-        max_dist_in_km = 1.6
-        epsilon = max_dist_in_km / kms_per_radian # max distance that points can be from each other to be considered a cluster
-
-        orig_coords = groupedData[["orig_lat", "orig_lon"]].values
-        orig_db = DBSCAN(eps=epsilon, min_samples=1, algorithm='ball_tree', metric='haversine')
-        orig_db.fit(np.radians(orig_coords))
-        groupedData["orig_cluster"] = orig_db.labels_
-
-        dest_coords = groupedData[["dest_lat", "dest_lon"]].values
-        dest_db = DBSCAN(eps=epsilon, min_samples=1, algorithm='ball_tree', metric='haversine')
-        dest_db.fit(np.radians(dest_coords))
-        groupedData["dest_cluster"] = dest_db.labels_
-
-        return groupedData
 
     def _group_coordinates(self, prefix):
+        """
+        This approach was chosen because it was the most scalable between the clustering
+        alternatives in Apache Spark. My favorite option would be DBSCAN, which does not require
+        the number of desired clusters in advance, but there is not a implementation for it in 
+        pyspark.ml and the alternative implementations using Pandas were just not scalable according 
+        to my local tests with 100 million rows. 
+        The number of clusters set here was 8, but it would be necessary to test other params to check 
+        which configuration would give the best combination of clusters.
+        """
         va = VectorAssembler(inputCols=[f"{prefix}_lat", f"{prefix}_lon"], outputCol="features")
         self._df = va.transform(self._df)
         kmeans = KMeans(k=8, seed=1)

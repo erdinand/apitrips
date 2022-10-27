@@ -8,7 +8,7 @@ Python was used as the main language for this project. So, in order to run it, y
 
 1. Make sure you have Docker installed on your machine.
 2. Pull the postgres image from DockerHub.
-3. Create a container based on the postgres image, setting the parameters that will configure user, password, database and which port will be mapped between the container and your local machine. API is configured to use default parameters as stated below. If you want to use different configuration, please change the config.json that is located in the root of the project's folder.
+3. Create a container based on the postgres image, setting the parameters that will configure user, password, database and which port will be mapped between the container and your local machine. API is configured to use default parameters as stated below. If you want to use some different configuration or point to an already existing Postgres database, please change the database info that is in the config.json file, which is in the root folder of the project.
 
 Following you can see an example of how to setup the postgres docker container.
 
@@ -23,7 +23,7 @@ docker ps
 
 ## Setup Apache Spark
 
-In order to execute this project, you will also need Apache Spark and Java JDK installed on the machine that will execute the Python code. This project was tested with Apache Spark 3.3+ and Java JDK version 8, so it's recommend to use these versions when testing this project.
+In order to execute this project, you will also need Apache Spark and Java JDK installed on the same machine that will execute the Python code. This project was tested with Apache Spark 3.3+ and Java JDK version 8, so it's recommend to use these versions when testing this project.
 
 
 ## Setup Application
